@@ -1,3 +1,4 @@
+
 export enum UserRole {
   ADMIN = 'ADMIN',
   TECHNICIAN = 'TECHNICIAN',
@@ -44,6 +45,14 @@ export interface Generator {
   frequency: number;
   powerFactor: number;
   activePower: number; // kW
+  
+  // Connectivity Fields
+  connectionName?: string;
+  controller?: string;
+  protocol?: string;
+  ip?: string;
+  port?: string;
+  slaveId?: string;
 }
 
 export interface MaintenanceLog {

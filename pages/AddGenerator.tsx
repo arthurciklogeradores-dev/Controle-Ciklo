@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Save, Server, Cpu, MapPin, Zap } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -16,6 +17,7 @@ const AddGenerator: React.FC = () => {
     location: '',
     model: '',
     power: '',
+    connectionName: '',
     controller: 'dse',
     protocol: 'modbus_tcp',
     ip: '',
@@ -33,11 +35,12 @@ const AddGenerator: React.FC = () => {
           location: existingGen.location,
           model: existingGen.model,
           power: existingGen.powerKVA.toString(),
-          controller: 'dse', // Default or load from extended types if available
-          protocol: 'modbus_tcp',
-          ip: '', // These would ideally come from the generator object if we stored connection details
-          port: '',
-          slaveId: '1'
+          connectionName: existingGen.connectionName || '',
+          controller: existingGen.controller || 'dse',
+          protocol: existingGen.protocol || 'modbus_tcp',
+          ip: existingGen.ip || '',
+          port: existingGen.port || '',
+          slaveId: existingGen.slaveId || '1'
         });
       }
     }
@@ -62,6 +65,12 @@ const AddGenerator: React.FC = () => {
           location: formData.location,
           model: formData.model,
           powerKVA: Number(formData.power),
+          connectionName: formData.connectionName,
+          controller: formData.controller,
+          protocol: formData.protocol,
+          ip: formData.ip,
+          port: formData.port,
+          slaveId: formData.slaveId
         };
         updateGenerator(updatedGen);
       }
@@ -90,6 +99,12 @@ const AddGenerator: React.FC = () => {
         frequency: 0,
         powerFactor: 0,
         activePower: 0,
+        connectionName: formData.connectionName,
+        controller: formData.controller,
+        protocol: formData.protocol,
+        ip: formData.ip,
+        port: formData.port,
+        slaveId: formData.slaveId
       };
       addGenerator(newGen);
     }
@@ -180,6 +195,18 @@ const AddGenerator: React.FC = () => {
           <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
             <Server className="text-blue-500" size={20} /> Conectividade
           </h3>
+
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Nome da Conectividade</label>
+            <input 
+              type="text" 
+              name="connectionName"
+              value={formData.connectionName}
+              onChange={handleChange}
+              className="w-full bg-ciklo-black border border-gray-700 rounded-lg p-2.5 text-white focus:border-ciklo-orange outline-none transition-colors"
+              placeholder="Ex: Modbus Local" 
+            />
+          </div>
 
           <div>
             <label className="block text-sm text-gray-400 mb-1">Tipo de Controlador</label>
