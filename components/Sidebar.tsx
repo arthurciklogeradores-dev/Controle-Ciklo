@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Zap, LogOut, Settings2, Users, MessageCircle } from 'lucide-react';
-import { useAuth } from '../App';
+import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
 const Sidebar: React.FC = () => {

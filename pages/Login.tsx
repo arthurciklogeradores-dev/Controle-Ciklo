@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../App';
+import { useAuth } from '../context/AuthContext';
 import { useUsers } from '../context/UserContext';
 import { Zap, Lock, Mail, MessageCircle } from 'lucide-react';
 
@@ -68,6 +68,7 @@ const Login: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="off"
                     className="w-full bg-ciklo-black border border-gray-700 rounded-lg py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:border-ciklo-orange focus:ring-1 focus:ring-ciklo-orange outline-none transition-all"
                     placeholder="Digite seu e-mail"
                   />
@@ -83,6 +84,7 @@ const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    autoComplete="off"
                     className="w-full bg-ciklo-black border border-gray-700 rounded-lg py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:border-ciklo-orange focus:ring-1 focus:ring-ciklo-orange outline-none transition-all"
                     placeholder="••••••••"
                   />

@@ -1,6 +1,6 @@
-import React, { useState, createContext, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { User, UserRole } from './types';
+import { UserRole } from './types';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import GeneratorDetail from './pages/GeneratorDetail';
@@ -10,17 +10,8 @@ import UserManagement from './pages/UserManagement';
 import Sidebar from './components/Sidebar';
 import { GeneratorProvider } from './context/GeneratorContext';
 import { UserProvider } from './context/UserContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Menu, X } from 'lucide-react';
-
-interface AuthContextType {
-  user: User | null;
-  login: (user: User) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType>(null!);
-
-export const useAuth = () => useContext(AuthContext);
 
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user } = useAuth();
@@ -91,67 +82,63 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
   );
 };
 
-const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  const login = (userData: User) => {
-    setUser(userData);
-  };
-
-  const logout = () => {
-    setUser(null);
-  };
-
+const AppContent: React.FC = () => {
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <HashRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout><Dashboard /></Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/generator/:id" element={
+          <ProtectedRoute>
+            <Layout><GeneratorDetail /></Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Admin Only Routes */}
+        <Route path="/fleet" element={
+          <AdminRoute>
+            <Layout><FleetManagement /></Layout>
+          </AdminRoute>
+        } />
+
+        <Route path="/add-generator" element={
+          <AdminRoute>
+            <Layout><AddGenerator /></Layout>
+          </AdminRoute>
+        } />
+
+        <Route path="/edit-generator/:id" element={
+          <AdminRoute>
+            <Layout><AddGenerator /></Layout>
+          </AdminRoute>
+        } />
+        
+        <Route path="/users" element={
+          <AdminRoute>
+            <Layout><UserManagement /></Layout>
+          </AdminRoute>
+        } />
+
+      </Routes>
+    </HashRouter>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
       <UserProvider>
         <GeneratorProvider>
-          <HashRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Layout><Dashboard /></Layout>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/generator/:id" element={
-                <ProtectedRoute>
-                  <Layout><GeneratorDetail /></Layout>
-                </ProtectedRoute>
-              } />
-
-              {/* Admin Only Routes */}
-              <Route path="/fleet" element={
-                <AdminRoute>
-                  <Layout><FleetManagement /></Layout>
-                </AdminRoute>
-              } />
-
-              <Route path="/add-generator" element={
-                <AdminRoute>
-                  <Layout><AddGenerator /></Layout>
-                </AdminRoute>
-              } />
-
-              <Route path="/edit-generator/:id" element={
-                <AdminRoute>
-                  <Layout><AddGenerator /></Layout>
-                </AdminRoute>
-              } />
-              
-              <Route path="/users" element={
-                <AdminRoute>
-                  <Layout><UserManagement /></Layout>
-                </AdminRoute>
-              } />
-
-            </Routes>
-          </HashRouter>
+          <AppContent />
         </GeneratorProvider>
       </UserProvider>
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_ALARMS } from '../constants';
 import { Generator, GeneratorStatus, UserRole } from '../types';
-import { useAuth } from '../App';
+import { useAuth } from '../context/AuthContext';
 import { useGenerators } from '../context/GeneratorContext';
 import { 
   Power, AlertOctagon, RotateCcw, Settings, Gauge, 
@@ -54,7 +54,7 @@ const GeneratorDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { generators } = useGenerators();
+  const { generators, updateGenerator } = useGenerators();
   
   // Find generator from context
   const foundGen = generators.find(g => g.id === id);
@@ -121,11 +121,14 @@ const GeneratorDetail: React.FC = () => {
     if (!canControl) return;
     setControlLoading(action);
     setTimeout(() => {
-      // Logic to toggle state would go here in a real app (calling context update function)
       if (action === 'start') {
-        setGen({ ...gen, status: GeneratorStatus.RUNNING, rpm: 1800, voltageL1: 220, voltageL2: 220, voltageL3: 220 });
+        const updatedGen = { ...gen, status: GeneratorStatus.RUNNING, rpm: 1800, voltageL1: 220, voltageL2: 220, voltageL3: 220, activePower: 380 };
+        setGen(updatedGen);
+        updateGenerator(updatedGen);
       } else if (action === 'stop') {
-        setGen({ ...gen, status: GeneratorStatus.STOPPED, rpm: 0, voltageL1: 0, voltageL2: 0, voltageL3: 0, activePower: 0 });
+        const updatedGen = { ...gen, status: GeneratorStatus.STOPPED, rpm: 0, voltageL1: 0, voltageL2: 0, voltageL3: 0, activePower: 0 };
+        setGen(updatedGen);
+        updateGenerator(updatedGen);
       }
       setControlLoading(null);
     }, 1500);
@@ -134,7 +137,18 @@ const GeneratorDetail: React.FC = () => {
   const alarms = MOCK_ALARMS.filter(a => a.generatorId === gen.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+       {/* Full Screen Loading Overlay */}
+       {controlLoading && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center">
+          <div className="w-16 h-16 border-4 border-ciklo-orange border-t-transparent rounded-full animate-spin mb-4"></div>
+          <h2 className="text-2xl font-bold text-white tracking-wide animate-pulse">
+            {controlLoading === 'start' ? 'Iniciando Grupo Gerador...' : 'Parando Grupo Gerador...'}
+          </h2>
+          <p className="text-gray-400 mt-2">Aguarde a confirmação do comando remoto</p>
+        </div>
+      )}
+
       {/* Top Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -158,18 +172,24 @@ const GeneratorDetail: React.FC = () => {
             <button 
                disabled={gen.status === GeneratorStatus.RUNNING || !!controlLoading}
                onClick={() => handleControl('start')}
-               className={`px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all ${gen.status === GeneratorStatus.RUNNING ? 'bg-gray-800 text-gray-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500 text-white'}`}
+               className={`px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all ${
+                 gen.status === GeneratorStatus.RUNNING 
+                   ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' 
+                   : 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/20'
+               }`}
             >
-              {controlLoading === 'start' ? <div className="animate-spin w-4 h-4 border-2 border-white rounded-full border-t-transparent"></div> : <Power size={18} />}
-              START
+              <Power size={18} /> START
             </button>
             <button 
                disabled={gen.status === GeneratorStatus.STOPPED || !!controlLoading}
                onClick={() => handleControl('stop')}
-               className={`px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all ${gen.status === GeneratorStatus.STOPPED ? 'bg-gray-800 text-gray-500 cursor-not-allowed' : 'bg-red-600 hover:bg-red-500 text-white'}`}
+               className={`px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all ${
+                 gen.status === GeneratorStatus.STOPPED 
+                   ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' 
+                   : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20'
+               }`}
             >
-               {controlLoading === 'stop' ? <div className="animate-spin w-4 h-4 border-2 border-white rounded-full border-t-transparent"></div> : <Power size={18} />}
-              STOP
+               <Power size={18} /> STOP
             </button>
             <button className="p-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg border border-gray-700" title="Reset de Falhas">
               <RotateCcw size={20} />

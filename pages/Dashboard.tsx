@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_ALARMS } from '../constants';
 import { GeneratorStatus, UserRole } from '../types';
-import { useAuth } from '../App';
+import { useAuth } from '../context/AuthContext';
 import { useGenerators } from '../context/GeneratorContext';
 import { Zap, Fuel, Activity, MapPin, ChevronRight, Clock } from 'lucide-react';
 
