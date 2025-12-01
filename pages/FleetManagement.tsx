@@ -1,15 +1,30 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGenerators } from '../context/GeneratorContext';
+import { useUsers } from '../context/UserContext';
 import { GeneratorStatus } from '../types';
 import { Trash2, PlusCircle, MapPin, Zap, Server, Pencil } from 'lucide-react';
 
 const FleetManagement: React.FC = () => {
   const navigate = useNavigate();
   const { generators, removeGenerator } = useGenerators();
+  const { users, updateUser } = useUsers();
 
   const handleDelete = (id: string) => {
+    // 1. Remove the generator from the generator list
     removeGenerator(id);
+
+    // 2. Referential Integrity (Simulation):
+    // Remove this generator ID from all users who have it assigned.
+    // This prevents "phantom" references in the User Management screen.
+    users.forEach(user => {
+      if (user.assignedGeneratorIds?.includes(id)) {
+        updateUser({
+          ...user,
+          assignedGeneratorIds: user.assignedGeneratorIds.filter(gId => gId !== id)
+        });
+      }
+    });
   };
 
   return (
