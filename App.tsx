@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { UserRole } from './types';
-import Login from './pages/Login';
+import Login from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import GeneratorDetail from './pages/GeneratorDetail';
 import FleetManagement from './pages/FleetManagement';
